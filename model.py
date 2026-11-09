@@ -14,10 +14,11 @@ class SelfAttention(nn.Module):
     def forward(self, x):
         _, T, _ = x.shape
         k, q = self.key(x), self.query(x)
+        v = self.value(x)
         weights = q @ k.transpose(-2, -1) * (k.shape[-1] ** -0.5) 
         weights = weights.masked_fill(self.causal_mask[:T, :T] == 0, float("-inf"))
         weights = self.dropout(F.softmax(weights, dim=-1))
-        return weights @ self.value
+        return weights @ v
 
 class MultiheadAttention(nn.Module):
     def __init__(self, num_heads, head_size):
